@@ -5,7 +5,9 @@ Hi!
 Three missing directories used to contain large files.
 
 /lib/tf_scripts/data/
+
 /lib/tf_scripts/pretrained_model_checkpoints/
+
 /lib/tf_scripts/exported_models/
 
 You can find them all here:
