@@ -1,8 +1,8 @@
 # Large files #
 ##################
-/lib/tf_scripts/data
-/lib/tf_scripts/pretrained_model_checkpoints
-/lib/tf_scripts/exported_models
+/lib/tf_scripts/data/*
+/lib/tf_scripts/pretrained_model_checkpoints/*
+/lib/tf_scripts/exported_models/*
 
 # Logs for this project & ipynb #
 ####################
@@ -13,15 +13,15 @@ processing_*.txt
 
 # One-time-scripts #
 ##################
-/enrolled_images_folders
-/enrolled_video_folders
-/extracted_bboxes
-/folders_to_process_images
-/folders_to_process_video
-/old
-/scripts_batch_downloads
-/scripts_batch_process
-/scripts_batch_uploads
+/enrolled_images_folders/*
+/enrolled_video_folders/*
+/extracted_bboxes/*
+/folders_to_process_images/*
+/folders_to_process_video/*
+/old/*
+/scripts_batch_downloads/*
+/scripts_batch_process/*
+/scripts_batch_uploads/*
 rclone.conf
 
 # Keep empty directories # 
