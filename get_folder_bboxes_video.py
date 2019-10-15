@@ -6,119 +6,200 @@ from pathlib import Path
 import shutil
 import time
 
-ap = argparse.ArgumentParser()
-ap.add_argument("--your_folder", required = True)
-args = vars(ap.parse_args())
+def get_bboxes(work_folder, extracted_bboxes_folder):
+    wf = work_folder
+    bf = extracted_bboxes_folder
+    wf_stem = os.path.basename(wf)
+    fn_components = wf_stem.split("_--_")
+    volunteer_name = fn_components[0]
+    vid_name = fn_components[-1]
+    parent_folders = "_--_".join(fn_components[1:-1])
 
-yf = args['your_folder']
-yf_stem = os.path.basename(yf)
-#files_all= listdir(yf) #video directories and a csv
-#files_dirs = [f in files_all if f[-4:] != ".csv"]
-yf_csv =  yf_stem + ".csv"
-yf_csv = str(Path(yf, yf_csv))
-df_yf = pd.read_csv(yf_csv) #has columns video_name_(auto)  date_enrolled_(auto)    video_created_date_(auto)   parent_folders_(auto)   omitted    location    diver   year    month   day rough_time_of_day   video_comments
 
-bbox_cols = ['bbox_name_(auto)', 'date_enrolled_(auto)', 'created_date_(auto)', 'parent_folders_(auto)', 'location', 'diver', 'year', 'month', 'day', 'rough_time_of_day', 'video_comments', 'bbox_comments', 'tagged', 'same_as_other_box', 'laser','phase','xmin', 'ymin', 'xmax', 'ymax', 'score', 'obj_id']
+    bboxes_finished_csv = vid_name + "_bboxes_to_keep_finished.csv"
+    bboxes_finished_csv = str(Path(wf, bboxes_finished_csv))
+    bboxes_finished_xlsx = vid_name + "_bboxes_to_keep_finished.xlsx"
+    bboxes_finished_xlsx = str(Path(wf, bboxes_finished_xlsx))
+    bboxes_all_csv = vid_name + "_detections_output_with_obj_id.csv"
+    bboxes_all_csv = str(Path(wf, bboxes_all_csv))
+    bboxes_images_dir = str(Path(wf, "bboxes"))
+    bboxes_extracted_csv = vid_name + "_bboxes_extracted.csv"
+    bboxes_extracted_csv = str(Path(bf, wf_stem, bboxes_extracted_csv))
+    metadat_txt = vid_name + "_metadata.txt"
+    metadat_txt = str(Path(wf, metadat_txt))
+    no_files = "no_bboxes_made_for_" + wf_stem
+    no_files = str(Path(bf, wf_stem, no_files))
 
-now = str(int(time.time()))
-all_bboxes_path = str(Path('extracted_bboxes', yf_stem + '_--_' + now, 'all_boxes')) 
-all_bboxes_bboxes = str(Path('extracted_bboxes', yf_stem + '_--_' + now, 'all_boxes', 'bboxes')) 
-Path.mkdir(Path(all_bboxes_bboxes), parents = True)
+    with open(metadat_txt) as meta:
+        for line in meta:
+            if "creation_time" in line:
+                creation_time = line.split("=")[1].rstrip("\n")
+                break
+            else: 
+                creation_time = None
 
-final_dfs = [] 
 
-# folder structure:
 
-# extracted bboxes >>> subdirs yf >>>> all_bboxes and also by video. each all bboxes and video has a folder of bboxes and a csv
+    def is_dat(filename):
+        ext = os.path.splitext(filename)[1]
+        if ext == ".xlsx" or ext == ".csv":
+            return True
+        else:
+            return False
 
-for _, yf_row in df_yf.iterrows(): #i.e., for a given video
 
-    if pd.isnull(yf_row['omitted']): #if video is not omitted
-        #define some filenames
-        #fn_all is the auto-generated csv of detections
-        #fn_keep is the user-generated csv of bboxes to keep for this video
-        #bboxes folder is the directory containing all the bboxes for this video
-        vid_fn = yf_row['video_name_(auto)']
-        video_folder = str(Path(vid_fn).stem)
-        fn_keep = video_folder + "_bboxes_to_keep.csv"
-        fn_all = video_folder + "_detections_output_with_obj_id.csv"
-        fn_keep = str(Path(yf, video_folder, fn_keep)) 
-        fn_all = str(Path(yf, video_folder, fn_all)) #a csv with columns xmin  ymin    xmax    ymax    score   xmean   ymean   obj_id
-        bboxes_folder = str(Path(yf, video_folder, "bboxes"))
-        #load the data
-        df_keep = pd.read_csv(fn_keep)
-        df_all = pd.read_csv(fn_all)
-        #load all bboxes into memory as a dict
-        bboxes = listdir(bboxes_folder)
-        bbox_nums = [int(bbox.rsplit(sep = "_box")[1][:-4]) for bbox in bboxes]
-        bboxes_dict = dict(zip(bbox_nums, bboxes))    
-        #make some empty lists
-        df_finals_rows_list = [] #gonna be a list of dicts, then convert to a df of bboxes with cols bbox_cols
-        for _, row_keep in df_keep.iterrows():
-            box_num = int(row_keep['best_bboxes'])
-            next_row = {}
-            next_row['bbox_name_(auto)'] = bboxes_dict[box_num]
-            next_row['date_enrolled_(auto)'] = yf_row['date_enrolled_(auto)']
-            next_row['created_date_(auto)'] = yf_row['video_created_date_(auto)']
-            next_row['parent_folders_(auto)'] = yf_row['parent_folders_(auto)']
-            next_row['location'] = yf_row['location']
-            next_row['diver']  = yf_row['diver']
-            next_row['year'] = yf_row['year']
-            next_row['month'] = yf_row['month']
-            next_row['day'] = yf_row['day']
-            next_row['rough_time_of_day'] = yf_row['rough_time_of_day']
-            next_row['video_comments'] = yf_row['video_comments']
-            next_row['bbox_comments'] = row_keep['comments']
-            try: #i forgot to add the tagged ones in!
-                next_row['tagged'] = row_keep['tagged']
+    def read_csv_excel(filename):
+        ext = os.path.splitext(filename)[1]
+        if ext == ".csv":
+            df = pd.read_csv(filename)
+            return df
+        elif ext == ".xlsx":
+            df = pd.read_excel(filename)
+            return df
+        else:
+            return None
+
+
+    def check_if_bboxes(filename):
+        df = read_csv_excel(filename)
+        if df is None:
+            return False
+        nr, nc = df.shape
+        if 'best_bboxes' in list(df.columns) and nr > 0:
+            return True
+        else:
+            return False
+
+    if os.path.isfile(bboxes_finished_csv):
+        has_bboxes = check_if_bboxes(bboxes_finished_csv)
+        bboxes_dat = pd.read_csv(bboxes_finished_csv)
+    elif os.path.isfile(bboxes_finished_xlsx):
+        has_bboxes = check_if_bboxes(bboxes_finished_xlsx)
+        bboxes_dat = pd.read_excel(bboxes_finished_xlsx)
+    else:
+        has_bboxes = False
+        print("...No finished file in " + wf + ", so checking other files for bboxes")
+        wf_files = next(os.walk(wf))[2]
+        wf_files_dats = [f for f in wf_files if is_dat(f)]
+        for filename in wf_files_dats:
+            fn_short = filename
+            filename = str(Path(wf, filename))
+            has_bboxes = check_if_bboxes(filename)
+            if has_bboxes:
+                bboxes_dat = read_csv_excel(filename)
+                print("...Bboxes found in " + fn_short)
+                break
+
+    if not has_bboxes:
+        Path.mkdir(Path(bf, wf_stem), parents = True, exist_ok = True)
+        print("No bboxes found in " + wf)
+        open(no_files, 'a').close()
+        return None
+    
+    #desired output: a folder with the same name as what I have, 
+    #moved to the extracted bboxes directory, but with only the bboxes that were kept, and a csv listing them, with metadata.
+
+    bboxes_copied_here = str(Path(bf, wf_stem, "bboxes"))
+
+    Path.mkdir(Path(bboxes_copied_here), parents = True, exist_ok = True)
+
+    bboxes_fns = listdir(bboxes_images_dir)
+    bbox_nums = [int(bbox.rsplit(sep = "_box")[1][:-4]) for bbox in bboxes_fns]
+    bboxes_dict = dict(zip(bbox_nums, bboxes_fns))
+
+    bboxes_extracted_list = []
+    metadat_cols = ['bbox_name_(auto)', 'created_date_(auto)', 'parent_folders_(auto)', 'volunteer_name_(auto)', 'location', 'diver', 'year', 'month', 'day', 'rough_time_of_day', 'video_comments', 'bbox_comments', 'tagged', 'same_as_other_box', 'laser','phase','xmin', 'ymin', 'xmax', 'ymax', 'score', 'obj_id']
+    bboxes_all_df = pd.read_csv(bboxes_all_csv)
+
+    for ind, row_to_keep in bboxes_dat.iterrows():
+        extracted_row = {}
+        try:
+            box_num = int(row_to_keep['best_bboxes'])
+        except ValueError:
+            if ind == bboxes_dat.shape[0] - 1 and len(bboxes_extracted_list) == 0:
+                print("#########################################")
+                print("Found only non-integer values in " + wf_stem)
+                print("Treating as no bboxes")
+                Path.mkdir(Path(bf, wf_stem), parents = True, exist_ok = True)
+                print("No bboxes found in " + wf)
+                open(no_files, 'a').close()
+                return None
+            else:
+                continue
+        try:
+            extracted_row['bbox_name_(auto)'] = bboxes_dict[box_num]
+        except KeyError:
+            print("#########################################")
+            print("There was a typo!")
+            print("Box " + str(box_num) + " was not an actual bbox, in " + wf_stem)
+            print("Input the correct value to fix it, or press q to exit")
+            box_num = input()
+            try:
+                box_num = int(box_num)
             except:
-                pass
-            try: #i forgot to add the tagged ones in!
-                next_row['same_as_other_box'] = row_keep['same_as_other_box']
-            except:
-                pass
-            try: #i forgot to add the tagged ones in!
-                next_row['laser'] = row_keep['laser']
-            except:
-                pass
-            try: #i forgot to add the tagged ones in!
-                next_row['phase'] = row_keep['phase']
-            except:
-                pass
-            next_row['xmin'] = df_all.iloc[box_num]['xmin']
-            next_row['ymin'] = df_all.iloc[box_num]['ymin']
-            next_row['xmax'] = df_all.iloc[box_num]['xmax']
-            next_row['ymax'] = df_all.iloc[box_num]['ymax']
-            next_row['score'] = df_all.iloc[box_num]['score']
-            next_row['xmean'] = df_all.iloc[box_num]['ymean']
-            next_row['obj_id'] = df_all.iloc[box_num]['obj_id']
-            df_finals_rows_list.append(next_row)
-        #make the final dataframe for this video
-        df_final = pd.DataFrame(df_finals_rows_list, columns = bbox_cols)
-        final_dfs.append(df_final)
-        #create the directories we're going to save this csv to
-        video_bboxes_path = str(Path('extracted_bboxes', yf_stem + '_--_' + now, video_folder))
-        video_bboxes_bboxes = str(Path('extracted_bboxes', yf_stem + '_--_' + now, video_folder, 'bboxes'))
-        Path.mkdir(Path(video_bboxes_bboxes), parents = True)
-        #save the csv 
-        vid_csv_fn = str(Path(video_bboxes_path, video_folder + '_kept_bboxes.csv'))
-        df_final.to_csv(vid_csv_fn, index=False)
-        #now copy the bboxes into video_bboxes_bboxes, AND into all_bboxes_bboxes
-        bboxes_to_keep = df_final['bbox_name_(auto)'].to_list()
-        bboxes_to_keep_paths = [str(Path(bboxes_folder, bbox)) for bbox in bboxes_to_keep]
+                quit()
+            try:
+                extracted_row['bbox_name_(auto)'] = bboxes_dict[box_num]
+            except KeyError:
+                "That number was also not a bbox. Quitting..."
+                quit()
+        if creation_time:
+            extracted_row['created_date_(auto)'] = creation_time
+        extracted_row['parent_folders_(auto)'] = parent_folders
+        extracted_row['volunteer_name_(auto)'] = volunteer_name
+        try: #i forgot to add the tagged ones in!
+            extracted_row['bbox_comments'] = row_to_keep['comments']
+        except:
+            pass
+        try:
+            extracted_row['tagged'] = row_to_keep['tagged']
+        except:
+            pass
+        try: 
+            same_box_num = row_to_keep['same_as_other_box']
+            extracted_row['same_as_other_box'] = bboxes_dict[same_box_num]
+        except:
+            pass
+        try: 
+            extracted_row['laser'] = row_to_keep['laser']
+        except:
+            pass
+        try: 
+            extracted_row['phase'] = row_to_keep['phase']
+        except:
+            pass
+        extracted_row['xmin'] = bboxes_all_df.iloc[box_num]['xmin']
+        extracted_row['ymin'] = bboxes_all_df.iloc[box_num]['ymin']
+        extracted_row['xmax'] = bboxes_all_df.iloc[box_num]['xmax']
+        extracted_row['ymax'] = bboxes_all_df.iloc[box_num]['ymax']
+        extracted_row['score'] = bboxes_all_df.iloc[box_num]['score']
+        extracted_row['xmean'] = bboxes_all_df.iloc[box_num]['ymean']
+        extracted_row['obj_id'] = bboxes_all_df.iloc[box_num]['obj_id']
 
-        for bbox_path in bboxes_to_keep_paths:
-            shutil.copy(src = bbox_path, dst = video_bboxes_bboxes)
-            shutil.copy(src = bbox_path, dst = all_bboxes_bboxes)
+        bboxes_extracted_list.append(extracted_row)
 
-#finally, make the final combined df
 
-combined_csv_fn = str(Path(all_bboxes_path, yf_stem + '_all_kept_bboxes.csv'))
-combined_df = pd.concat(final_dfs)
-combined_df.to_csv(combined_csv_fn, index = False)
+    bboxes_extracted_df = pd.DataFrame(bboxes_extracted_list, columns = metadat_cols)
+    bboxes_to_copy = bboxes_extracted_df['bbox_name_(auto)'].to_list()
+    bboxes_to_copy = [str(Path(bboxes_images_dir, bbox)) for bbox in bboxes_to_copy]
 
-print("finished! bboxes are in extracted_bboxes directory!")
+    #finally, save the files
 
+    bboxes_extracted_df.to_csv(bboxes_extracted_csv, index = False)
+    for bbox in bboxes_to_copy:
+        shutil.copy(src = bbox, dst = bboxes_copied_here)
+
+
+if __name__ == '__main__':
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--work_folder", required = True)
+    ap.add_argument("--extracted_bboxes_folder", required = True)
+    args = vars(ap.parse_args())
+
+    wf = args['work_folder']
+    bf = args['extracted_bboxes_folder']
+
+    get_bboxes(wf, bf)
 
 
 

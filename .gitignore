@@ -38,6 +38,8 @@ rclone.conf
 *.exe
 *.o
 *.so
+__pycache__/
+*.py[cod]
 
 # Packages #
 ############
