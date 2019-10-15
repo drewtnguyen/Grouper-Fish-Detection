@@ -5,6 +5,7 @@ from os import listdir
 from pathlib import Path
 import shutil
 import time
+import zipfile
 
 def get_bboxes(work_folder, extracted_bboxes_folder):
     wf = work_folder
@@ -23,6 +24,10 @@ def get_bboxes(work_folder, extracted_bboxes_folder):
     bboxes_all_csv = vid_name + "_detections_output_with_obj_id.csv"
     bboxes_all_csv = str(Path(wf, bboxes_all_csv))
     bboxes_images_dir = str(Path(wf, "bboxes"))
+    bboxes_images_zip = str(Path(wf, "bboxes.zip"))
+    if !os.path.exists(bboxes_images_dir):
+        with zipfile.ZipFile(bboxes_images_zip, 'r') as zip_ref:
+            zip_ref.extractall(bboxes_images_dir)
     bboxes_extracted_csv = vid_name + "_bboxes_extracted.csv"
     bboxes_extracted_csv = str(Path(bf, wf_stem, bboxes_extracted_csv))
     metadat_txt = vid_name + "_metadata.txt"

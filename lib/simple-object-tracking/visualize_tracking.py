@@ -4,6 +4,7 @@ import argparse
 import imutils
 import time
 import cv2
+import shutil
 from pathlib import Path
 
 ap = argparse.ArgumentParser()
@@ -76,3 +77,15 @@ for frame_num, frame in enumerate(frames):
 	# if the `q` key was pressed, break from the loop
 	#if key == ord("q"):
 	#	break
+
+bboxes_to_zip = args['bboxes_directory']
+bboxes_zip_fn = bboxes_to_zip + '.zip'
+
+try: 
+	shutil.make_archive(bboxes_zip_fn, 'zip', bboxes_to_zip)
+	zip_success = True
+else:
+	zip_success = False
+
+if zip_success:
+	shutil.rmtree(bboxes_to_zip)

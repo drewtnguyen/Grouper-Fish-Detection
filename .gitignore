@@ -20,6 +20,7 @@ processing_*.txt
 /folders_to_process_video/*
 /old/*
 /scripts_batch_downloads/*
+/download_logs/*
 /scripts_batch_process/*
 /scripts_batch_uploads/*
 rclone.conf

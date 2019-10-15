@@ -52,3 +52,7 @@ timestamp=$(date +%s)
 rclone copyto "${src_fn}" "${local_fn}/${folder_name}" --verbose --log-file="download_logs/dl_log_${timestamp}.txt" 
 echo "Copying downloaded file to external directory \"${dest_fn}\"..."
 rsync -v -r --stats --progress "${local_fn}/${folder_name}" "${dest_fn}" --log-file="download_logs/rsync_log_${timestamp}.txt" && echo "Deleting file from local..." && rm -r "${local_fn}/${folder_name}"
+##count empty files
+num_files=$(ls "${dest_fn}/${folder_name}" -1 | wc -l)
+touch "${dest_fn}/empty_files_log.txt" #count in case any files turn up empty
+python util/note_empty_files.py --num "${num_files}" --log "${dest_fn}/empty_files_log.txt" --folder_name "${folder_name}"

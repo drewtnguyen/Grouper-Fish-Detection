@@ -45,3 +45,8 @@ echo $folder_name
 echo "Copying Google Drive directory \"${src_fn}\" to \"${dest_fn}/${folder_name}\"..."
 timestamp=$(date +%s)
 rclone copyto "${src_fn}" "${dest_fn}/${folder_name}" --verbose --log-file="download_logs/dl_log_${timestamp}.txt" 
+#count if there are any empty files
+num_files=$(ls "${dest_fn}/${folder_name}" -1 | wc -l)
+touch "${dest_fn}/empty_files_log.txt" #count in case any files turn up empty
+python util/note_empty_files.py --num "${num_files}" --log "${dest_fn}/empty_files_log.txt" --folder_name "${folder_name}"
+
