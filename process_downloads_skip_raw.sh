@@ -43,12 +43,12 @@ readarray -t folders < "util/${downloads_fn}"
 for fold in "${folders[@]}"
 do 
     fold_full_path="${input_folder}/${fold}"
-    if [ ! -d "${fold_full_path}" ]; then
+    if [  -d "${fold_full_path}" ]; then
         cd "${fold_full_path}"
         cd "${current_dir}"
         python util/split_images_and_video_skip_raw.py --media_folder "${fold_full_path}" --out_dir "${out_dir}" --timestamp "${stamp}"
     else 
-        echo "${full_fold_path} is not a directory"
+        echo "${fold_full_path} is not a directory"
     fi
 done 
 
