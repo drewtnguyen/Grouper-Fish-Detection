@@ -16,6 +16,7 @@ if num_files == 0:
 	print(folder_name + " is empty! logging to " + empty_file_log)
 	with open(empty_file_log, 'a+') as f:
 		f.write(folder_name)
+		f.write('\n')
 
 
 

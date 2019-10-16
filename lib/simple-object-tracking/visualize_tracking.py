@@ -84,7 +84,7 @@ bboxes_zip_fn = bboxes_to_zip + '.zip'
 try: 
 	shutil.make_archive(bboxes_zip_fn, 'zip', bboxes_to_zip)
 	zip_success = True
-else:
+except:
 	zip_success = False
 
 if zip_success:
