@@ -92,16 +92,18 @@ PYTHONPATH=`pwd`/lib/tf_scripts/models/research:`pwd`/lib/tf_scripts/models/rese
 ######at this stage we have a csv of bboxes, and a folder of images in temp dir. let's make the annotated video and bboxes as images
 echo "[3/5] Using detection results to get bboxes..."
 dat_no_id="${vid_dir}/${fn_no_ext}_detections_output.csv"
-mkdir -p "${vid_dir}/tracked_frames"
+#mkdir -p "${vid_dir}/tracked_frames"
 mkdir -p "${vid_dir}/imgs_to_stitch"
 mkdir -p "${vid_dir}/bboxes"
-rm -rf "${vid_dir}/tracked_frames/*"
+#rm -rf "${vid_dir}/tracked_frames/*"
 rm -rf "${vid_dir}/imgs_to_stitch/*"
 rm -rf "${vid_dir}/bboxes/*"
 
 python lib/simple-object-tracking/object_tracker_imgs.py -md 4 -dat "${dat_no_id}" -outdir "${vid_dir}" #makes the bboxes and does some initial tracking
 dat_id="${vid_dir}/${fn_no_ext}_detections_output_with_obj_id.csv"
-python lib/simple-object-tracking/visualize_tracking.py -dat "${dat_id}" -imgfold "${temp_dir}" -outdir "${vid_dir}/tracked_frames" -outtemp "${vid_dir}/imgs_to_stitch"\
+#python lib/simple-object-tracking/visualize_tracking.py -dat "${dat_id}" -imgfold "${temp_dir}" -outdir "${vid_dir}/tracked_frames" -outtemp "${vid_dir}/imgs_to_stitch"\
+#    -boxesdir "${vid_dir}/bboxes"  #makes bboxes and annotated images
+python lib/simple-object-tracking/visualize_tracking.py -dat "${dat_id}" -imgfold "${temp_dir}" -outtemp "${vid_dir}/imgs_to_stitch"\
     -boxesdir "${vid_dir}/bboxes"  #makes bboxes and annotated images
 echo "[4/5] Using detection results to get annotated video..."
 ffmpeg -hide_banner -loglevel panic -framerate 1/${N} -i "${vid_dir}/imgs_to_stitch/img_%d.jpg" -pix_fmt yuv420p -c:v libx264 "${vid_dir}/${fn_no_ext}_tracked.mp4" #stitches images to make annotated video

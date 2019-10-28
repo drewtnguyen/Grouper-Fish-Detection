@@ -12,7 +12,7 @@ ap.add_argument("-dat", "--detectionsdatawithids", required=True,
 	help="csv with bounding boxes and object ids")
 ap.add_argument("-imgfold", "--folderwithimgs", required=True,
 	help="folder of images")
-ap.add_argument("-outdir", "--output_directory", required = True, help = 'output directory to save images')
+ap.add_argument("-outdir", "--output_directory", required = False, help = 'output directory to save images')
 ap.add_argument("-outtempdir", "--output_temp_directory", required = True, help = 'output directory to save temp images')
 ap.add_argument("-boxesdir", "--bboxes_directory", required = True, help = "directory for bboxes")
 args = vars(ap.parse_args())
@@ -79,7 +79,7 @@ for frame_num, frame in enumerate(frames):
 	#	break
 
 bboxes_to_zip = args['bboxes_directory']
-bboxes_zip_fn = bboxes_to_zip + '.zip'
+bboxes_zip_fn = bboxes_to_zip
 
 try: 
 	shutil.make_archive(bboxes_zip_fn, 'zip', bboxes_to_zip)
