@@ -71,10 +71,10 @@ mkdir -p "${stills}/gpu_${G}"
 
 if [ "$ext" = "MTS" ] || [ "$ext" = "mts" ] ; then
     echo "Deinterlacing MTS file..." 
-    ffmpeg -hide_banner -noautorotate -loglevel panic -i "${fn}" -vf "fps=1/${N},yadif=0:-1:1" -q:v 1 "${stills}/gpu_${G}/outfile_%d.jpg"
+    ffmpeg -hide_banner -y -noautorotate -loglevel panic -i "${fn}" -vf "fps=1/${N},yadif=0:-1:1" -q:v 1 "${stills}/gpu_${G}/outfile_%d.jpg"
     #currently this deinterlaces IF it's an MTS container and IF it says the frame is interlaced. this may not work in general, but i guess we can watch out for that. 
 else 
-    ffmpeg -hide_banner -noautorotate -loglevel panic -i "${fn}" -vf fps=1/${N} -q:v 1 "${stills}/gpu_${G}/outfile_%d.jpg"
+    ffmpeg -hide_banner -y -noautorotate -loglevel panic -i "${fn}" -vf fps=1/${N} -q:v 1 "${stills}/gpu_${G}/outfile_%d.jpg"
 fi 
 
 echo "stills generated. now renaming stills..."
@@ -106,7 +106,7 @@ dat_id="${vid_dir}/${fn_no_ext}_detections_output_with_obj_id.csv"
 python lib/simple-object-tracking/visualize_tracking.py -dat "${dat_id}" -imgfold "${temp_dir}" -outtemp "${vid_dir}/imgs_to_stitch"\
     -boxesdir "${vid_dir}/bboxes"  #makes bboxes and annotated images
 echo "[4/5] Using detection results to get annotated video..."
-ffmpeg -hide_banner -loglevel panic -framerate 1/${N} -i "${vid_dir}/imgs_to_stitch/img_%d.jpg" -pix_fmt yuv420p -c:v libx264 "${vid_dir}/${fn_no_ext}_tracked.mp4" #stitches images to make annotated video
+ffmpeg -hide_banner -y -loglevel panic -framerate 1/${N} -i "${vid_dir}/imgs_to_stitch/img_%d.jpg" -pix_fmt yuv420p -c:v libx264 "${vid_dir}/${fn_no_ext}_tracked.mp4" #stitches images to make annotated video
 
 ####do some clean up
 echo "[5/5] Cleaning up..."

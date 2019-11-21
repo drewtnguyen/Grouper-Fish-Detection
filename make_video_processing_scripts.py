@@ -53,7 +53,7 @@ with open(p_fn, "w+") as p_f:
     for i, d in enumerate(subdirs):
         fullpath = root + '/' + d
         p_l = "./util/external_process_video_folder.sh --dir  " + '\"' + fullpath + '\"' + " --enroll " + '\"' + dest + '\"' + " --stills " + '\"' + stills + '\"' +  " --period 0.25 --batch_size " + bs + " --cuda_visible " + cuda_v
-        if i == len(subdirs) - 1: p_l = p_l + ' &&' 
+        if i != len(subdirs) - 1: p_l = p_l + ' &&' 
         p_f.write(p_l)
         p_f.write("\n")
         

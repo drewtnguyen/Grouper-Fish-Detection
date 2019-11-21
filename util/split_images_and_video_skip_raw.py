@@ -78,6 +78,8 @@ out_dir_vid = str(Path(out_dir, 'VIDEOS_' + stamp))
 out_dir_vid_4k = str(Path(out_dir, 'VIDEOS_(4K)_' + stamp))
 out_dir_imgs = str(Path(out_dir, 'IMAGES_' + stamp))
 out_dir_raw = str(Path(out_dir, 'RAW_IMAGES_' + stamp))
+ignore_file_log = str(Path(out_dir, 'ignored_files.txt'))
+
 fold_vids = basenm + '_(VIDEO)'
 fold_vids_4k = basenm + '_(VIDEO)_(4K)'
 fold_imgs = basenm + '_(IMAGES)'
@@ -109,7 +111,11 @@ for fn in images_and_video:
     elif is_image(full_path):
         shutil.move(src = full_path, dst = full_path_fold_imgs)
     else:
-        print("In folder " + basenm + ", ignoring file "+ fn)
+        msg = "In folder " + basenm + ", ignoring file "+ fn
+        with open(ignore_file_log, 'a+') as f:
+            f.write(msg)
+            f.write('\n')
+        print(msg)
 
 try: 
     os.rmdir(full_path_fold_vids)
