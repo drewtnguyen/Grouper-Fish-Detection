@@ -10,7 +10,7 @@ from PIL import Image
 
 #all raw images have already been converted to png by now, or should be.
 
-video_fexts = ['.mov', '.Mov', '.MOV','.mp4', '.Mp4', '.MP4','.mts','.Mts','.MTS','.m4v','.M4v','.M4V', '.wmv', '.Wmv', '.WMV']
+video_fexts = ['.mov', '.Mov', '.MOV','.mp4', '.Mp4', '.MP4','.mts','.Mts','.MTS','.m4v','.M4v','.M4V', '.wmv', '.Wmv', '.WMV', '.avi', '.Avi', '.AVI']
 raw_fexts = ['.cr2','.Cr2','.CR2','.nef','.Nef','.NEF']
 image_fexts = ['.jpg','.Jpg','.JPG','.jpeg','.Jpeg','.JPEG','.png','.Png','.PNG'] + raw_fexts
 ignore_fexts = ['.LRV', '.lrv', '.Lrv', '.THM', '.thm', '.Thm', '.CPI', '.cpi', '.Cpi', '.MPL', '.mpl', '.Mpl']

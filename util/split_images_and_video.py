@@ -10,7 +10,7 @@ from PIL import Image
 
 #all raw images have already been converted to png by now, or should be.
 
-video_fexts = ['.mov', '.Mov', '.MOV','.mp4', '.Mp4', '.MP4','.mts','.Mts','.MTS','.m4v','.M4v','.M4V']
+video_fexts = ['.mov', '.Mov', '.MOV','.mp4', '.Mp4', '.MP4','.mts','.Mts','.MTS','.m4v','.M4v','.M4V', '.wmv', '.Wmv', '.WMV', '.avi', '.Avi', '.AVI']
 image_fexts = ['.jpg','.Jpg','.JPG','.jpeg','.Jpeg','.JPEG','.png','.Png','.PNG','.cr2','.Cr2','.CR2']
 
 def is_video(fn):
