@@ -47,13 +47,9 @@ for frame_num, frame in enumerate(frames):
 		centroid = (int(row['xmean']), int(row['ymean']))
 		top_left = (xmin, ymin)
 		bottom_right = (xmax, ymax)
-		#######save bbox
-		################
 		box_fn = str(Path(args['bboxes_directory'], str(frame) + "_ID" + str(objectID) + "_box" + str(boxID) + ".jpg"))
 		box_img = img[ymin:ymax, xmin:xmax]
 		cv2.imwrite(box_fn, box_img)
-		##################
-		###########
 		#import pdb; pdb.set_trace()
 		# draw both the ID of the object and the centroid of the
 		# object on the output frame
@@ -65,18 +61,8 @@ for frame_num, frame in enumerate(frames):
 			cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 255, 0), 2)
 		cv2.circle(img_copy, center = (centroid[0], centroid[1]), radius = 4, color = (0, 255, 0), thickness = -1)
 		cv2.rectangle(img_copy, top_left, bottom_right, color = (0, 255, 0), thickness = 1)
-	#out_fn = str(Path(args['output_directory'], str(frame) + "_tracked.jpg"))
-	out_fn = str(Path(args['output_directory'], frame + "_tracked" + ".jpg"))
 	out_fn_temp = str(Path(args['output_temp_directory'], "img_" + str(frame_num) + ".jpg"))
-	#cv2.imwrite(out_fn, img_copy)
 	cv2.imwrite(out_fn_temp, img_copy)
-	# show the output frame
-	#cv2.imshow("Frame", img)
-	#key = cv2.waitKey(1) & 0xFF
-
-	# if the `q` key was pressed, break from the loop
-	#if key == ord("q"):
-	#	break
 
 bboxes_to_zip = args['bboxes_directory']
 bboxes_zip_fn = bboxes_to_zip
