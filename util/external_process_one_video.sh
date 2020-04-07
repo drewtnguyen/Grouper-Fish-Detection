@@ -107,6 +107,8 @@ python lib/simple-object-tracking/visualize_tracking.py -dat "${dat_id}" -imgfol
     -boxesdir "${vid_dir}/bboxes"  #makes bboxes and annotated images
 echo "[4/5] Using detection results to get annotated video..."
 ffmpeg -hide_banner -y -loglevel panic -framerate 1/${N} -i "${vid_dir}/imgs_to_stitch/img_%d.jpg" -pix_fmt yuv420p -c:v libx264 "${vid_dir}/${fn_no_ext}_tracked.mp4" #stitches images to make annotated video
+ffmpeg -hide_banner -y -loglevel panic -framerate 1/${N} -i "${vid_dir}/imgs_to_stitch/img_keep%d.jpg" -pix_fmt yuv420p -c:v libx264 "${vid_dir}/${fn_no_ext}_assume4fps_dropped.mp4" #stitches images to make annotated video
+
 
 ####do some clean up
 echo "[5/5] Cleaning up..."
